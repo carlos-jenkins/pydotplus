@@ -5,6 +5,7 @@
 # -test del_node, del_edge methods
 # -test Common.set method
 
+from __future__ import division, print_function
 
 import os
 try:
@@ -13,11 +14,21 @@ except ImportError:
     import sha
     sha256 = sha.new
 import subprocess
+import sys
 
 import pydot
 import dot_parser
 import unittest
 
+
+PY3 = not sys.version_info < (3, 0, 0)
+
+if PY3:
+    NULL_SEP = b''
+    xrange = range
+else:
+    NULL_SEP = ''
+    bytes = str
 
 DOT_BINARY_PATH         = pydot.find_graphviz()['dot']
 TEST_DIR                = './'
@@ -71,7 +82,7 @@ class TestGraphAPI(unittest.TestCase):
         g.add_node(node)
         node.set('label','mine')
 
-        self.assertEqual( g.to_string(), 'digraph G {\nlegend [shape=box, label=mine];\n}\n' )
+        self.assertEqual( g.to_string(), 'digraph G {\nlegend [label=mine, shape=box];\n}\n' )
 
 
     def test_attribute_with_implicit_value(self):
@@ -109,7 +120,7 @@ class TestGraphAPI(unittest.TestCase):
         g.add_edge( pydot.Edge( ('D','E') ) )
         g.add_node( pydot.Node( 'node!' ) )
 
-        self.assertEqual( type(pickle.dumps(g)), str )
+        self.assertEqual( type(pickle.dumps(g)), bytes )
 
 
 
@@ -149,7 +160,7 @@ class TestGraphAPI(unittest.TestCase):
         pngs = dot_files = [ os.path.join(shapefile_dir, fname) for
             fname in os.listdir(shapefile_dir) if fname.endswith('.png') ]
 
-        f = file( dot_file, 'rt' )
+        f = open( dot_file, 'rt' )
         graph_data = f.read()
         f.close()
 
@@ -183,8 +194,8 @@ class TestGraphAPI(unittest.TestCase):
 
         p = subprocess.Popen(
             ( DOT_BINARY_PATH , '-Tjpe', ),
-            cwd = os.path.dirname(filename),
-            stdin=file(filename, 'rt'),
+            cwd=os.path.dirname(filename),
+            stdin=open(filename, 'rt'),
             stderr=subprocess.PIPE, stdout=subprocess.PIPE)
 
         stdout = p.stdout
@@ -198,18 +209,17 @@ class TestGraphAPI(unittest.TestCase):
         stdout.close()
 
         if stdout_output:
-            stdout_output = ''.join(stdout_output)
+            stdout_output = NULL_SEP.join(stdout_output)
 
         #pid, status = os.waitpid(p.pid, 0)
         status = p.wait()
-
 
         return sha256(stdout_output).hexdigest()
 
 
     def _render_with_pydot(self, filename):
 
-        #f = file(filename, 'rt')
+        #f = open(filename, 'rt')
         #graph_data = f.read()
         #f.close()
 
@@ -220,7 +230,7 @@ class TestGraphAPI(unittest.TestCase):
         if not isinstance( g, list ):
             g = [g]
 
-        jpe_data = ''.join( [ _g.create( format='jpe' ) for _g in g ] )
+        jpe_data = NULL_SEP.join( [ _g.create( format='jpe' ) for _g in g ] )
 
         return sha256(jpe_data).hexdigest()
 
@@ -253,13 +263,13 @@ class TestGraphAPI(unittest.TestCase):
                 parsed_data_hexdigest = self._render_with_pydot(fname)
 
                 original_data_hexdigest = self._render_with_graphviz(fname)
-            except Exception, excp:
-                print 'Failed redering BAD(%s)' % dot
+            except Exception:
+                print('Failed rendering BAD(%s)' % dot)
                 #print 'Error:', str(excp)
-                raise excp
+                raise
 
             if parsed_data_hexdigest != original_data_hexdigest:
-                print 'BAD(%s)' % dot
+                print('BAD(%s)' % dot)
 
             self.assertEqual( parsed_data_hexdigest, original_data_hexdigest )
 

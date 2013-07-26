@@ -10,9 +10,10 @@ Author: Michael Krause <michael@krause-software.de>
 Fixes by: Ero Carrera <ero@dkbza.org>
 """
 
+from __future__ import division, print_function
+
 __author__ = ['Michael Krause', 'Ero Carrera']
 __license__ = 'MIT'
-
 
 import sys
 import glob
@@ -25,7 +26,13 @@ from pyparsing import __version__ as pyparsing_version
 from pyparsing import ( nestedExpr, Literal, CaselessLiteral, Word, Upcase, OneOrMore, ZeroOrMore,
     Forward, NotAny, delimitedList, oneOf, Group, Optional, Combine, alphas, nums,
     restOfLine, cStyleComment, nums, alphanums, printables, empty, quotedString,
-    ParseException, ParseResults, CharsNotIn, _noncomma, dblQuotedString, QuotedString, ParserElement )
+    ParseException, ParseResults, CharsNotIn, dblQuotedString, QuotedString, ParserElement )
+
+
+PY3 = not sys.version_info < (3, 0, 0)
+
+if PY3:
+    basestring = str
 
 
 class P_AttrList:
@@ -111,7 +118,7 @@ def push_top_graph_stmt(str, loc, toks):
             add_elements(g, element)
 
         else:
-            raise ValueError, "Unknown element statement: %r " % element
+            raise ValueError("Unknown element statement: %r " % element)
 
 
     for g in top_graphs:
@@ -136,7 +143,7 @@ def update_parent_graph_hierarchy(g, parent_graph=None, level=0):
         else:
             item_dict = g.obj_dict
 
-        if not item_dict.has_key( key_name ):
+        if key_name not in item_dict:
             continue
 
         for key, objs in item_dict[key_name].items():
@@ -218,14 +225,14 @@ def add_elements(g, toks, defaults_graph=None, defaults_node=None, defaults_edge
                 defaults_edge.update(element.attrs)
 
             else:
-                raise ValueError, "Unknown DefaultStatement: %s " % element.default_type
+                raise ValueError("Unknown DefaultStatement: %s " % element.default_type)
 
         elif isinstance(element, P_AttrList):
 
             g.obj_dict['attributes'].update(element.attrs)
 
         else:
-            raise ValueError, "Unknown element statement: %r" % element
+            raise ValueError("Unknown element statement: %r" % element)
 
 
 def push_graph_stmt(str, loc, toks):
@@ -267,7 +274,7 @@ def push_default_stmt(str, loc, toks):
     if default_type in ['graph', 'node', 'edge']:
         return DefaultStatement(default_type, attrs)
     else:
-        raise ValueError, "Unknown default statement: %r " % toks
+        raise ValueError("Unknown default statement: %r " % toks)
 
 
 def push_attr_list(str, loc, toks):
@@ -414,7 +421,8 @@ def graph_definition():
 
         double_quoted_string = QuotedString('"', multiline=True, unquoteResults=False) # dblQuotedString
 
-        alphastring_ = OneOrMore(CharsNotIn(_noncomma + ' '))
+        noncomma_ = "".join([c for c in printables if c != ","])
+        alphastring_ = OneOrMore(CharsNotIn(noncomma_ + ' '))
 
         def parse_html(s, loc, toks):
             return '<%s>' % ''.join(toks[0])
@@ -506,8 +514,23 @@ def parse_dot_data(data):
 
     top_graphs = list()
 
-    if data.startswith(codecs.BOM_UTF8):
-        data = data.decode( 'utf-8' )
+    if PY3:
+        if isinstance(data, bytes):
+            # this is extremely hackish
+            try:
+                idx = data.index(b'charset') + 7
+                while data[idx] in b' \t\n\r=':
+                    idx += 1
+                fst = idx
+                while data[idx] not in b' \t\n\r];,':
+                    idx += 1
+                charset = data[fst:idx].strip(b'"\'').decode('ascii')
+                data = data.decode(charset)
+            except:
+                data = data.decode('utf-8')
+    else:
+        if data.startswith(codecs.BOM_UTF8):
+            data = data.decode('utf-8')
 
     try:
 
@@ -523,9 +546,9 @@ def parse_dot_data(data):
         else:
             return [g for g in tokens]
 
-    except ParseException, err:
-
-        print err.line
-        print " "*(err.column-1) + "^"
-        print err
+    except ParseException:
+        err = sys.exc_info()[1]
+        print(err.line)
+        print(" "*(err.column-1) + "^")
+        print(err)
         return None

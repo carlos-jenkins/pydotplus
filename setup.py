@@ -2,7 +2,7 @@
 
 try:
     from distutils.core import setup
-except ImportError, excp:
+except ImportError:
     from setuptools import setup
 
 import pydot
@@ -31,5 +31,5 @@ setup(	name = 'pydot',
         'Topic :: Software Development :: Libraries :: Python Modules'],
     long_description = "\n".join(pydot.__doc__.split('\n')),
     py_modules = ['pydot', 'dot_parser'],
-    install_requires = ['pyparsing', 'setuptools'],
+    install_requires = ['pyparsing'],
     data_files = [('.', ['LICENSE', 'README'])] )

@@ -295,7 +295,7 @@ def graph_from_edges(edge_list, node_prefix='', directed=False):
     return graph
 
 
-def graph_from_adjacency_matrix(matrix, node_prefix=u'', directed=False):
+def graph_from_adjacency_matrix(matrix, node_prefix='', directed=False):
     """Creates a basic graph out of an adjacency matrix.
 
     The matrix has to be a list of rows of values

@@ -106,6 +106,51 @@ CLUSTER_ATTRIBUTES = set([
    ])
 
 
+def is_string_like(obj): # from John Hunter, types-free version
+    """Check if obj is string."""
+    try:
+        obj + ''
+    except (TypeError, ValueError):
+        return False
+    return True
+
+def get_fobj(fname, mode='w+'):
+    """Obtain a proper file object.
+
+    Parameters
+    ----------
+    fname : string, file object, file descriptor
+        If a string or file descriptor, then we create a file object. If *fname*
+        is a file object, then we do nothing and ignore the specified *mode*
+        parameter.
+    mode : str
+        The mode of the file to be opened.
+
+    Returns
+    -------
+    fobj : file object
+        The file object.
+    close : bool
+        If *fname* was a string, then *close* will be *True* to signify that
+        the file object should be closed after writing to it. Otherwise, *close*
+        will be *False* signifying that the user, in essence, created the file
+        object already and that subsequent operations should not close it.
+
+    """
+    if is_string_like(fname):
+        fobj = open(fname, mode)
+        close = True
+    elif hasattr(fname, 'write'):
+        # fname is a file-like object, perhaps a StringIO (for example)
+        fobj = fname
+        close = False
+    else:
+        # assume it is a file descriptor
+        fobj = os.fdopen(fname, mode)
+        close = False
+    return fobj, close
+
+
 #
 # Extented version of ASPN's Python Cookbook Recipe:
 # Frozen dictionaries.
@@ -295,7 +340,7 @@ def graph_from_edges(edge_list, node_prefix='', directed=False):
     return graph
 
 
-def graph_from_adjacency_matrix(matrix, node_prefix=u'', directed=False):
+def graph_from_adjacency_matrix(matrix, node_prefix='', directed=False):
     """Creates a basic graph out of an adjacency matrix.
 
     The matrix has to be a list of rows of values
@@ -1750,12 +1795,13 @@ class Dot(Graph):
         self.progs = paths
 
     def write(self, path, prog=None, format='raw'):
-        """Writes a graph to a file.
-
+        """
         Given a filename 'path' it will open/create and truncate
         such file and write on it a representation of the graph
         defined by the dot object and in the format specified by
-        'format'.
+        'format'. 'path' can also be an open file-like object, such as
+        a StringIO instance.
+
         The format 'raw' is used to dump the string representation
         of the Dot object, without further processing.
         The output can be processed by any of graphviz tools, defined
@@ -1769,34 +1815,39 @@ class Dot(Graph):
 
         which are automatically defined for all the supported formats.
         [write_ps(), write_gif(), write_dia(), ...]
-        """
 
+        """
         if prog is None:
             prog = self.prog
 
-        dot_fd = open(path, "w+b")
-        if format == 'raw':
-            data = self.to_string()
-            if isinstance(data, basestring):
-                if not isinstance(data, unicode):
-                    try:
-                        data = unicode(data, 'utf-8')
-                    except:
-                        pass
+        fobj, close = get_fobj(path, 'w+b')
+        try:
+            if format == 'raw':
+                data = self.to_string()
+                if isinstance(data, basestring):
+                    if not isinstance(data, unicode):
+                        try:
+                            data = unicode(data, 'utf-8')
+                        except:
+                            pass
 
-            try:
-                charset = self.get_charset()
-                if not PY3 or not charset:
-                    charset = 'utf-8'
-                data = data.encode(charset)
-            except:
-                if PY3:
-                    data = data.encode('utf-8')
-                pass
-            dot_fd.write(data)
-        else:
-            dot_fd.write(self.create(prog, format))
-        dot_fd.close()
+                try:
+                    charset = self.get_charset()
+                    if not PY3 or not charset:
+                        charset = 'utf-8'
+                    data = data.encode(charset)
+                except:
+                    if PY3:
+                        data = data.encode('utf-8')
+                    pass
+
+                fobj.write(data)
+
+            else:
+                fobj.write(self.create(prog, format))
+        finally:
+            if close:
+                fobj.close()
 
         return True
 

@@ -35,5 +35,5 @@ setup(
     long_description="\n".join(pydot.__doc__.split('\n')),
     packages=['pydot'],
     package_dir={'pydot': 'pydot'},
-    requires=['pyparsing (>=2.0.1)'],
+    install_requires=['pyparsing (>=2.0.1)'],
     )

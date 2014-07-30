@@ -257,6 +257,10 @@ def needs_quotes(s):
 
 
 def quote_if_necessary(s):
+    # Older versions of graphviz throws a syntax error for empty values without
+    # quotes, e.g. [label=]
+    if s == '':
+        return '""'
 
     if isinstance(s, bool):
         if s is True:

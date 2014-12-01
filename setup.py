@@ -44,7 +44,7 @@ def find_version(filename):
 setup(
     name='pydotplus',
     version=find_version('lib/pydotplus/version.py'),
-    package_dir={'' : 'lib'},
+    package_dir={'': 'lib'},
     packages=find_packages('lib'),
 
     # Metadata

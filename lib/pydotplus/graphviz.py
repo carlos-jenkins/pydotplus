@@ -596,11 +596,11 @@ def find_graphviz():
                         path = os.path.join(path, "bin")
                         progs = __find_executables(path)
                         if progs is not None:
-                            #print("Used Windows registry")
+                            # print("Used Windows registry")
                             return progs
 
                 except Exception:
-                    #raise
+                    # raise
                     pass
                 else:
                     break
@@ -610,7 +610,7 @@ def find_graphviz():
         for path in os.environ['PATH'].split(os.pathsep):
             progs = __find_executables(path)
             if progs is not None:
-                #print("Used path")
+                # print("Used path")
                 return progs
 
     # Method 3 (Windows only)
@@ -625,14 +625,14 @@ def find_graphviz():
                 os.environ['PROGRAMFILES'], 'ATT', 'GraphViz', 'bin'
             )
         else:
-            #Just in case, try the default...
+            # Just in case, try the default...
             path = r"C:\Program Files\att\Graphviz\bin"
 
         progs = __find_executables(path)
 
         if progs is not None:
 
-            #print("Used default install location")
+            # print("Used default install location")
             return progs
 
     for path in (
@@ -643,7 +643,7 @@ def find_graphviz():
 
         progs = __find_executables(path)
         if progs is not None:
-            #print("Used path")
+            # print("Used path")
             return progs
 
     # Failed to find GraphViz
@@ -756,7 +756,7 @@ class Common(object):
 
     def create_attribute_methods(self, obj_attributes):
 
-        #for attr in self.obj_dict['attributes']:
+        # for attr in self.obj_dict['attributes']:
         for attr in obj_attributes:
 
             # Generate all the Setter methods.
@@ -1296,7 +1296,7 @@ class Graph(Common):
                 graph_node.obj_dict
             ]
 
-            #self.node_dict[graph_node.get_name()] = graph_node.attributes
+            # self.node_dict[graph_node.get_name()] = graph_node.attributes
             graph_node.set_parent_graph(self.get_parent_graph())
         else:
             self.obj_dict['nodes'][graph_node.get_name()].append(
@@ -2033,7 +2033,7 @@ class Dot(Graph):
                 if PY3:
                     stderr_output = stderr_output.decode(sys.stderr.encoding)
 
-        #pid, status = os.waitpid(p.pid, 0)
+        # pid, status = os.waitpid(p.pid, 0)
         status = p.wait()
 
         if status != 0:

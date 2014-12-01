@@ -27,13 +27,13 @@
 Graphviz's dot language parser.
 
 The dotparser parses graphviz files in dot and dot files and transforms them
-into a class representation defined by pydot.
+into a class representation defined by pydotplus.
 """
 
 from __future__ import division, print_function
 
 import sys
-import pydot
+import pydotplus
 import codecs
 
 from pyparsing import __version__ as pyparsing_version
@@ -104,7 +104,7 @@ def push_top_graph_stmt(str, loc, toks):
         elif element in ['graph', 'digraph']:
             attrs = {}
 
-            g = pydot.Dot(graph_type=element, **attrs)
+            g = pydotplus.Dot(graph_type=element, **attrs)
             attrs['type'] = element
 
             top_graphs.append(g)
@@ -112,7 +112,7 @@ def push_top_graph_stmt(str, loc, toks):
         elif isinstance(element, basestring):
             g.set_name(element)
 
-        elif isinstance(element, pydot.Subgraph):
+        elif isinstance(element, pydotplus.Subgraph):
             g.obj_dict['attributes'].update(element.obj_dict['attributes'])
             g.obj_dict['edges'].update(element.obj_dict['edges'])
             g.obj_dict['nodes'].update(element.obj_dict['nodes'])
@@ -142,7 +142,7 @@ def update_parent_graph_hierarchy(g, parent_graph=None, level=0):
         parent_graph = g
 
     for key_name in ('edges',):
-        if isinstance(g, pydot.frozendict):
+        if isinstance(g, pydotplus.frozendict):
             item_dict = g
         else:
             item_dict = g.obj_dict
@@ -163,10 +163,14 @@ def update_parent_graph_hierarchy(g, parent_graph=None, level=0):
                     for idx, vertex in enumerate(obj['points']):
                         if isinstance(
                             vertex,
-                            (pydot.Graph, pydot.Subgraph, pydot.Cluster)
+                            (
+                                pydotplus.Graph,
+                                pydotplus.Subgraph,
+                                pydotplus.Cluster
+                            )
                         ):
                             vertex.set_parent_graph(parent_graph)
-                        if isinstance(vertex, pydot.frozendict):
+                        if isinstance(vertex, pydotplus.frozendict):
                             if vertex['parent_graph'] is g:
                                 pass
                             else:
@@ -194,15 +198,15 @@ def add_elements(g, toks,
         defaults_edge = {}
 
     for elm_idx, element in enumerate(toks):
-        if isinstance(element, (pydot.Subgraph, pydot.Cluster)):
+        if isinstance(element, (pydotplus.Subgraph, pydotplus.Cluster)):
             add_defaults(element, defaults_graph)
             g.add_subgraph(element)
 
-        elif isinstance(element, pydot.Node):
+        elif isinstance(element, pydotplus.Node):
             add_defaults(element, defaults_node)
             g.add_node(element)
 
-        elif isinstance(element, pydot.Edge):
+        elif isinstance(element, pydotplus.Edge):
             add_defaults(element, defaults_edge)
             g.add_edge(element)
 
@@ -214,15 +218,15 @@ def add_elements(g, toks,
 
         elif isinstance(element, DefaultStatement):
             if element.default_type == 'graph':
-                default_graph_attrs = pydot.Node('graph', **element.attrs)
+                default_graph_attrs = pydotplus.Node('graph', **element.attrs)
                 g.add_node(default_graph_attrs)
 
             elif element.default_type == 'node':
-                default_node_attrs = pydot.Node('node', **element.attrs)
+                default_node_attrs = pydotplus.Node('node', **element.attrs)
                 g.add_node(default_node_attrs)
 
             elif element.default_type == 'edge':
-                default_edge_attrs = pydot.Node('edge', **element.attrs)
+                default_edge_attrs = pydotplus.Node('edge', **element.attrs)
                 g.add_node(default_edge_attrs)
                 defaults_edge.update(element.attrs)
 
@@ -239,13 +243,13 @@ def add_elements(g, toks,
 
 
 def push_graph_stmt(str, loc, toks):
-    g = pydot.Subgraph('')
+    g = pydotplus.Subgraph('')
     add_elements(g, toks)
     return g
 
 
 def push_subgraph_stmt(str, loc, toks):
-    g = pydot.Subgraph('')
+    g = pydotplus.Subgraph('')
 
     for e in toks:
         if len(e) == 3:
@@ -309,8 +313,8 @@ def push_edge_stmt(str, loc, toks):
 
     e = []
 
-    if isinstance(toks[0][0], pydot.Graph):
-        n_prev = pydot.frozendict(toks[0][0].obj_dict)
+    if isinstance(toks[0][0], pydotplus.Graph):
+        n_prev = pydotplus.frozendict(toks[0][0].obj_dict)
     else:
         n_prev = toks[0][0] + do_node_ports(toks[0])
 
@@ -318,14 +322,18 @@ def push_edge_stmt(str, loc, toks):
         n_next_list = [[n.get_name()] for n in toks[2][0]]
         for n_next in [n for n in n_next_list]:
             n_next_port = do_node_ports(n_next)
-            e.append(pydot.Edge(n_prev, n_next[0] + n_next_port, **attrs))
+            e.append(pydotplus.Edge(n_prev, n_next[0] + n_next_port, **attrs))
 
-    elif isinstance(toks[2][0], pydot.Graph):
+    elif isinstance(toks[2][0], pydotplus.Graph):
         e.append(
-            pydot.Edge(n_prev, pydot.frozendict(toks[2][0].obj_dict), **attrs)
+            pydotplus.Edge(
+                n_prev,
+                pydotplus.frozendict(toks[2][0].obj_dict),
+                **attrs
+            )
         )
 
-    elif isinstance(toks[2][0], pydot.Node):
+    elif isinstance(toks[2][0], pydotplus.Node):
         node = toks[2][0]
 
         if node.get_port() is not None:
@@ -333,7 +341,7 @@ def push_edge_stmt(str, loc, toks):
         else:
             name_port = node.get_name()
 
-        e.append(pydot.Edge(n_prev, name_port, **attrs))
+        e.append(pydotplus.Edge(n_prev, name_port, **attrs))
 
     elif isinstance(toks[2][0], type('')):
         for n_next in [n for n in tuple(toks)[2::2]]:
@@ -342,7 +350,7 @@ def push_edge_stmt(str, loc, toks):
                 continue
 
             n_next_port = do_node_ports(n_next)
-            e.append(pydot.Edge(n_prev, n_next[0] + n_next_port, **attrs))
+            e.append(pydotplus.Edge(n_prev, n_next[0] + n_next_port, **attrs))
 
             n_prev = n_next[0] + n_next_port
 
@@ -365,7 +373,7 @@ def push_node_stmt(s, loc, toks):
         if len(node_name) > 0:
             node_name = node_name[0]
 
-    n = pydot.Node(str(node_name), **attrs)
+    n = pydotplus.Node(str(node_name), **attrs)
     return n
 
 

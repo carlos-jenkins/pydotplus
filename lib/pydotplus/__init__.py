@@ -28,4 +28,4 @@ PyDotPlus module entry.
 """
 
 from .parser import *  # noqa
-from .graph import *  # noqa
+from .graphviz import *  # noqa

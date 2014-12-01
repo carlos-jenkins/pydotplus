@@ -16,7 +16,7 @@ except ImportError:
 import subprocess
 import sys
 
-import pydot
+import pydotplus
 import unittest
 
 
@@ -30,7 +30,7 @@ else:
     bytes = str
 
 
-DOT_BINARY_PATH = pydot.find_graphviz()['dot']
+DOT_BINARY_PATH = pydotplus.find_graphviz()['dot']
 TEST_DIR = './'
 REGRESSION_TESTS_DIR = os.path.join(TEST_DIR, 'graphs')
 MY_REGRESSION_TESTS_DIR = os.path.join(TEST_DIR, 'my_tests')
@@ -44,21 +44,23 @@ class TestGraphAPI(unittest.TestCase):
 
     def _reset_graphs(self):
 
-        self.graph_directed = pydot.Graph('testgraph', graph_type='digraph')
+        self.graph_directed = pydotplus.Graph(
+            'testgraph', graph_type='digraph'
+        )
 
     def test_keep_graph_type(self):
 
-        g = pydot.Dot(graph_name='Test', graph_type='graph')
+        g = pydotplus.Dot(graph_name='Test', graph_type='graph')
 
         self.assertEqual(g.get_type(), 'graph')
 
-        g = pydot.Dot(graph_name='Test', graph_type='digraph')
+        g = pydotplus.Dot(graph_name='Test', graph_type='digraph')
 
         self.assertEqual(g.get_type(), 'digraph')
 
     def test_add_style(self):
 
-        node = pydot.Node('mynode')
+        node = pydotplus.Node('mynode')
         node.add_style('abc')
         self.assertEqual(node.get_style(), 'abc')
         node.add_style('def')
@@ -68,27 +70,30 @@ class TestGraphAPI(unittest.TestCase):
 
     def test_create_simple_graph_with_node(self):
 
-        g = pydot.Dot()
+        g = pydotplus.Dot()
         g.set_type('digraph')
-        node = pydot.Node('legend')
+        node = pydotplus.Node('legend')
         node.set("shape", 'box')
         g.add_node(node)
         node.set('label', 'mine')
 
-        self.assertEqual(g.to_string(), 'digraph G {\nlegend [label=mine, shape=box];\n}\n')
+        self.assertEqual(
+            g.to_string(),
+            'digraph G {\nlegend [label=mine, shape=box];\n}\n'
+        )
 
     def test_attribute_with_implicit_value(self):
 
         d = 'digraph {\na -> b[label="hi", decorate];\n}'
-        g = pydot.graph_from_dot_data(d)
+        g = pydotplus.graph_from_dot_data(d)
         attrs = g.get_edges()[0].get_attributes()
 
         self.assertEqual('decorate' in attrs, True)
 
     def test_subgraphs(self):
 
-        g = pydot.Graph()
-        s = pydot.Subgraph("foo")
+        g = pydotplus.Graph()
+        s = pydotplus.Subgraph("foo")
 
         self.assertEqual(g.get_subgraphs(), [])
         self.assertEqual(g.get_subgraph_list(), [])
@@ -102,13 +107,13 @@ class TestGraphAPI(unittest.TestCase):
 
         import pickle
 
-        g = pydot.Graph()
-        s = pydot.Subgraph("foo")
+        g = pydotplus.Graph()
+        s = pydotplus.Subgraph("foo")
         g.add_subgraph(s)
-        g.add_edge(pydot.Edge('A', 'B'))
-        g.add_edge(pydot.Edge('A', 'C'))
-        g.add_edge(pydot.Edge(('D', 'E')))
-        g.add_node(pydot.Node('node!'))
+        g.add_edge(pydotplus.Edge('A', 'B'))
+        g.add_edge(pydotplus.Edge('A', 'C'))
+        g.add_edge(pydotplus.Edge(('D', 'E')))
+        g.add_node(pydotplus.Node('node!'))
 
         self.assertEqual(type(pickle.dumps(g)), bytes)
 
@@ -117,11 +122,11 @@ class TestGraphAPI(unittest.TestCase):
         node1 = '"aánñoöüé€"'
         node2 = '"îôø®çßΩ"'
 
-        g = pydot.Dot()
+        g = pydotplus.Dot()
         g.set_charset('latin1')
-        g.add_node(pydot.Node(node1))
-        g.add_node(pydot.Node(node2))
-        g.add_edge(pydot.Edge(node1, node2))
+        g.add_node(pydotplus.Node(node1))
+        g.add_node(pydotplus.Node(node2))
+        g.add_edge(pydotplus.Edge(node1, node2))
 
         self.assertEqual(g.get_node(node1)[0].get_name(), node1)
         self.assertEqual(g.get_node(node2)[0].get_name(), node2)
@@ -129,7 +134,7 @@ class TestGraphAPI(unittest.TestCase):
         self.assertEqual(g.get_edges()[0].get_source(), node1)
         self.assertEqual(g.get_edges()[0].get_destination(), node2)
 
-        g2 = pydot.graph_from_dot_data(g.to_string())
+        g2 = pydotplus.graph_from_dot_data(g.to_string())
 
         self.assertEqual(g2.get_node(node1)[0].get_name(), node1)
         self.assertEqual(g2.get_node(node2)[0].get_name(), node2)
@@ -146,13 +151,13 @@ class TestGraphAPI(unittest.TestCase):
             os.path.join(shapefile_dir, fname)
             for fname in os.listdir(shapefile_dir)
             if fname.endswith('.png')
-            ]
+        ]
 
         f = open(dot_file, 'rt')
         graph_data = f.read()
         f.close()
 
-        g = pydot.graph_from_dot_data(graph_data)
+        g = pydotplus.graph_from_dot_data(graph_data)
 
         g.set_shape_files(pngs)
 
@@ -168,7 +173,7 @@ class TestGraphAPI(unittest.TestCase):
 
         graph_data = 'graph A { a->b };\ngraph B {c->d}'
 
-        graphs = pydot.graph_from_dot_data(graph_data)
+        graphs = pydotplus.graph_from_dot_data(graph_data)
 
         self.assertEqual(len(graphs), 2)
 
@@ -181,7 +186,7 @@ class TestGraphAPI(unittest.TestCase):
             cwd=os.path.dirname(filename),
             stdin=open(filename, 'rt'),
             stderr=subprocess.PIPE, stdout=subprocess.PIPE
-            )
+        )
 
         stdout = p.stdout
 
@@ -196,19 +201,19 @@ class TestGraphAPI(unittest.TestCase):
         if stdout_output:
             stdout_output = NULL_SEP.join(stdout_output)
 
-        #pid, status = os.waitpid(p.pid, 0)
+        # pid, status = os.waitpid(p.pid, 0)
         # this returns a status code we should check
         p.wait()
 
         return sha256(stdout_output).hexdigest()
 
     def _render_with_pydot(self, filename):
-        #f = open(filename, 'rt')
-        #graph_data = f.read()
-        #f.close()
+        # f = open(filename, 'rt')
+        # graph_data = f.read()
+        # f.close()
 
-        #g = pydot.parse_from_dot_data(graph_data)
-        g = pydot.graph_from_dot_file(filename)
+        # g = pydotplus.parse_from_dot_data(graph_data)
+        g = pydotplus.graph_from_dot_file(filename)
 
         if not isinstance(g, list):
             g = [g]
@@ -228,10 +233,9 @@ class TestGraphAPI(unittest.TestCase):
         dot_files = [
             fname for fname in os.listdir(directory)
             if fname.endswith('.dot')
-            ]  # and fname.startswith('')]
+        ]  # and fname.startswith('')]
 
         for dot in dot_files:
-            #print 'Processing: %s' % dot
             os.sys.stdout.write('#')
             os.sys.stdout.flush()
 
@@ -242,7 +246,6 @@ class TestGraphAPI(unittest.TestCase):
                 original_data_hexdigest = self._render_with_graphviz(fname)
             except Exception:
                 print('Failed rendering BAD(%s)' % dot)
-                #print 'Error:', str(excp)
                 raise
 
             if parsed_data_hexdigest != original_data_hexdigest:
@@ -254,7 +257,7 @@ class TestGraphAPI(unittest.TestCase):
 
         self._reset_graphs()
 
-        self.graph_directed.add_node(pydot.Node(1))
+        self.graph_directed.add_node(pydotplus.Node(1))
 
         self.assertEqual(self.graph_directed.get_nodes()[0].get_name(), '1')
 
@@ -262,23 +265,27 @@ class TestGraphAPI(unittest.TestCase):
 
         self._reset_graphs()
 
-        self.graph_directed.add_node(pydot.Node('"node"'))
+        self.graph_directed.add_node(pydotplus.Node('"node"'))
 
-        self.assertEqual(self.graph_directed.get_nodes()[0].get_name(), '"node"')
+        self.assertEqual(
+            self.graph_directed.get_nodes()[0].get_name(), '"node"'
+        )
 
     def test_quoted_node_id_to_string_no_attributes(self):
 
         self._reset_graphs()
 
-        self.graph_directed.add_node(pydot.Node('"node"'))
+        self.graph_directed.add_node(pydotplus.Node('"node"'))
 
-        self.assertEqual(self.graph_directed.get_nodes()[0].to_string(), '"node";')
+        self.assertEqual(
+            self.graph_directed.get_nodes()[0].to_string(), '"node";'
+        )
 
     def test_keyword_node_id(self):
 
         self._reset_graphs()
 
-        self.graph_directed.add_node(pydot.Node('node'))
+        self.graph_directed.add_node(pydotplus.Node('node'))
 
         self.assertEqual(self.graph_directed.get_nodes()[0].get_name(), 'node')
 
@@ -286,7 +293,7 @@ class TestGraphAPI(unittest.TestCase):
 
         self._reset_graphs()
 
-        self.graph_directed.add_node(pydot.Node('node'))
+        self.graph_directed.add_node(pydotplus.Node('node'))
 
         self.assertEqual(self.graph_directed.get_nodes()[0].to_string(), '')
 
@@ -294,9 +301,11 @@ class TestGraphAPI(unittest.TestCase):
 
         self._reset_graphs()
 
-        self.graph_directed.add_node(pydot.Node('node', shape='box'))
+        self.graph_directed.add_node(pydotplus.Node('node', shape='box'))
 
-        self.assertEqual(self.graph_directed.get_nodes()[0].to_string(), 'node [shape=box];')
+        self.assertEqual(
+            self.graph_directed.get_nodes()[0].to_string(), 'node [shape=box];'
+        )
 
     def test_names_of_a_thousand_nodes(self):
 
@@ -306,18 +315,20 @@ class TestGraphAPI(unittest.TestCase):
 
         for name in names:
 
-            self.graph_directed.add_node(pydot.Node(name, label=name))
+            self.graph_directed.add_node(pydotplus.Node(name, label=name))
 
-        self.assertEqual(set([n.get_name() for n in self.graph_directed.get_nodes()]), names)
+        self.assertEqual(
+            set([n.get_name() for n in self.graph_directed.get_nodes()]), names
+        )
 
     def test_executable_not_found_exception(self):
         paths = {'dot': 'invalid_executable_path'}
 
-        graph = pydot.Dot('graphname', graph_type='digraph')
+        graph = pydotplus.Dot('graphname', graph_type='digraph')
 
         graph.set_graphviz_executables(paths)
 
-        self.assertRaises(pydot.InvocationException, graph.create)
+        self.assertRaises(pydotplus.InvocationException, graph.create)
 
     def test_graph_add_node_argument_type(self):
 
@@ -342,9 +353,8 @@ class TestGraphAPI(unittest.TestCase):
 
     def test_quoting(self):
         import string
-        g = pydot.Dot()
-        g.add_node(pydot.Node("test", label=string.printable))
-        #print g.to_string()
+        g = pydotplus.Dot()
+        g.add_node(pydotplus.Node("test", label=string.printable))
         data = g.create(format='jpe')
         self.assertEqual(len(data) > 0, True)
 

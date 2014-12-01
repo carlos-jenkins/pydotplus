@@ -1,0 +1,8 @@
+tox
+flake8
+pytest
+pytest-cov
+coverage
+coveralls
+sphinx
+sphinx_rtd_theme

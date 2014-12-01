@@ -1,39 +1,69 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2014 Carlos Jenkins <carlos@jenkins.co.cr>
+# Copyright (c) 2014 Lance Hepler
+# Copyright (c) 2004-2011 Ero Carrera <ero@dkbza.org>
+# Copyright (c) 2004-2007 Michael Krause <michael@krause-software.de>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
 
-try:
-    from distutils.core import setup
-except ImportError:
-    from setuptools import setup
+from setuptools import setup, find_packages
 
-import pydot
-import os
 
-os.environ['COPY_EXTENDED_ATTRIBUTES_DISABLE'] = 'true'
-os.environ['COPYFILE_DISABLE'] = 'true'
+def find_version(filename):
+    import os
+    import re
+
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, filename)) as fd:
+        version_match = re.search(
+            r"^__version__ = ['\"]([^'\"]*)['\"]", fd.read(), re.M
+        )
+        if version_match:
+            return version_match.group(1)
+    raise RuntimeError('Unable to find version string.')
+
 
 setup(
-    name='pydot',
-    version=pydot.__version__,
-    description='Python interface to Graphviz\'s Dot',
-    author='Ero Carrera',
-    author_email='ero@dkbza.org',
-    url='http://code.google.com/p/pydot/',
-    download_url='http://pydot.googlecode.com/files/pydot-%s.tar.gz' % pydot.__version__,
-    license='MIT',
+    name='pydotplus',
+    version=find_version('lib/pydotplus/version.py'),
+    package_dir={'' : 'lib'},
+    packages=find_packages('lib'),
+
+    # Metadata
+    author='PyDotPlus Developers',
+    author_email='carlos@jenkins.co.cr',
+    description='Python interface to Graphviz\'s Dot Language',
+    long_description=open('README.rst', 'r').read(),
+    url='http://pydotplus.readthedocs.org/',
+
     keywords='graphviz dot graphs visualization',
-    platforms=['any'],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         'Operating System :: OS Independent',
-        'Programming Language :: Python',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
         'Topic :: Scientific/Engineering :: Visualization',
         'Topic :: Software Development :: Libraries :: Python Modules'
-        ],
-    long_description="\n".join(pydot.__doc__.split('\n')),
-    packages=['pydot'],
-    package_dir={'pydot': 'pydot'},
-    install_requires=['pyparsing>=2.0.1',],
-    )
+    ],
+)

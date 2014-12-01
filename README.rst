@@ -34,10 +34,17 @@ PyDotplus - Python interface to Graphviz's Dot language
 About
 =====
 
-PyDotPlus is a Python 2.7 - Python 3, documented and CI Tested version of the
-old pydot project that provides a Python Interface to Graphviz's Dot language.
+PyDotPlus is an improved version of the old pydot project that provides a
+Python Interface to Graphviz's Dot language.
 
    http://pydotplus.readthedocs.org/
+
+Differences with pydot:
+
+- Compatible with PyParsing 2.0+.
+- Python 2.7 - Python 3 compatible.
+- Well documented.
+- CI Tested.
 
 
 Installation

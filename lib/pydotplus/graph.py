@@ -1,5 +1,30 @@
-# -*- coding: Latin-1 -*-
-"""Graphviz's dot language Python interface.
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2014 Carlos Jenkins <carlos@jenkins.co.cr>
+# Copyright (c) 2014 Lance Hepler
+# Copyright (c) 2004-2011 Ero Carrera <ero@dkbza.org>
+# Copyright (c) 2004-2007 Michael Krause <michael@krause-software.de>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+
+"""
+Graphviz's dot language Python interface.
 
 This module provides with a full interface to create handle modify
 and process graphs in Graphviz's dot language.
@@ -13,15 +38,9 @@ DOT Language:   http://www.graphviz.org/doc/info/lang.html
 Programmed and tested with Graphviz 2.26.3 and Python 2.6 on OSX 10.6.4
 
 Copyright (c) 2005-2011 Ero Carrera <ero.carrera@gmail.com>
-
-Distributed under MIT license [http://opensource.org/licenses/mit-license.html].
 """
 
 from __future__ import division, print_function
-
-__author__ = 'Ero Carrera'
-__version__ = '1.0.29'
-__license__ = 'MIT'
 
 import os
 import re
@@ -63,7 +82,7 @@ GRAPH_ATTRIBUTES = set([
     'stylesheet', 'target', 'truecolor', 'viewport', 'voro_margin',
     # for subgraphs
     'rank'
-   ])
+])
 
 
 EDGE_ATTRIBUTES = set([
@@ -79,7 +98,7 @@ EDGE_ATTRIBUTES = set([
     'style', 'tailURL', 'tailclip', 'tailhref', 'taillabel', 'tailport',
     'tailtarget', 'tailtooltip', 'target', 'tooltip', 'weight',
     'rank'
-   ])
+])
 
 
 NODE_ATTRIBUTES = set([
@@ -92,7 +111,7 @@ NODE_ATTRIBUTES = set([
     'target', 'tooltip', 'vertices', 'width', 'z',
     # The following are attributes dot2tex
     'texlbl', 'texmode'
-   ])
+])
 
 
 CLUSTER_ATTRIBUTES = set([
@@ -100,10 +119,10 @@ CLUSTER_ATTRIBUTES = set([
     'fillcolor', 'fontcolor', 'fontname', 'fontsize', 'label', 'labeljust',
     'labelloc', 'lheight', 'lp', 'lwidth', 'nojustify', 'pencolor',
     'penwidth', 'peripheries', 'sortv', 'style', 'target', 'tooltip'
-   ])
+])
 
 
-def is_string_like(obj): # from John Hunter, types-free version
+def is_string_like(obj):  # from John Hunter, types-free version
     """Check if obj is string."""
     try:
         obj + ''
@@ -111,13 +130,15 @@ def is_string_like(obj): # from John Hunter, types-free version
         return False
     return True
 
+
 def get_fobj(fname, mode='w+'):
     """Obtain a proper file object.
 
     Parameters
     ----------
     fname : string, file object, file descriptor
-        If a string or file descriptor, then we create a file object. If *fname*
+        If a string or file descriptor, then we create a file object.
+        If *fname*
         is a file object, then we do nothing and ignore the specified *mode*
         parameter.
     mode : str
@@ -129,9 +150,10 @@ def get_fobj(fname, mode='w+'):
         The file object.
     close : bool
         If *fname* was a string, then *close* will be *True* to signify that
-        the file object should be closed after writing to it. Otherwise, *close*
-        will be *False* signifying that the user, in essence, created the file
-        object already and that subsequent operations should not close it.
+        the file object should be closed after writing to it. Otherwise,
+        *close* will be *False* signifying that the user, in essence, created
+        the file object already and that subsequent operations should not
+        close it.
 
     """
     if is_string_like(fname):
@@ -209,7 +231,7 @@ dot_keywords = ['graph', 'subgraph', 'digraph', 'node', 'edge', 'strict']
 id_re_alpha_nums = re.compile('^[_a-zA-Z][a-zA-Z0-9_,]*$', re.UNICODE)
 id_re_alpha_nums_with_ports = re.compile(
     '^[_a-zA-Z][a-zA-Z0-9_,:\"]*[a-zA-Z0-9_,\"]+$', re.UNICODE
-    )
+)
 id_re_num = re.compile('^[0-9,]+$', re.UNICODE)
 id_re_with_port = re.compile('^([^:]*):([^:]*)$', re.UNICODE)
 id_re_dbl_quoted = re.compile('^\".*\"$', re.S | re.UNICODE)
@@ -241,8 +263,7 @@ def needs_quotes(s):
 
     for test_re in [
             id_re_alpha_nums, id_re_num, id_re_dbl_quoted,
-            id_re_html, id_re_alpha_nums_with_ports
-           ]:
+            id_re_html, id_re_alpha_nums_with_ports]:
         if test_re.match(s):
             return False
 
@@ -372,8 +393,8 @@ def graph_from_adjacency_matrix(matrix, node_prefix='', directed=False):
                     Edge(
                         node_prefix + node_orig,
                         node_prefix + node_dest
-                        )
                     )
+                )
             node_dest += 1
         node_orig += 1
 
@@ -410,8 +431,8 @@ def graph_from_incidence_matrix(matrix, node_prefix='', directed=False):
                 Edge(
                     node_prefix + abs(nodes[0]),
                     node_prefix + nodes[1]
-                    )
                 )
+            )
 
     if not directed:
         graph.set_simplify(True)
@@ -431,7 +452,14 @@ def __find_executables(path):
     """
 
     success = False
-    progs = {'dot': '', 'twopi': '', 'neato': '', 'circo': '', 'fdp': '', 'sfdp': ''}
+    progs = {
+        'dot': '',
+        'twopi': '',
+        'neato': '',
+        'circo': '',
+        'fdp': '',
+        'sfdp': ''
+    }
 
     was_quoted = False
     path = path.strip()
@@ -515,7 +543,9 @@ def find_graphviz():
 
             def RegOpenKeyEx(key, subkey, opt, sam):
                 result = ctypes.c_uint(0)
-                ctypes.windll.advapi32.RegOpenKeyExA(key, subkey, opt, sam, ctypes.byref(result))
+                ctypes.windll.advapi32.RegOpenKeyExA(
+                    key, subkey, opt, sam, ctypes.byref(result)
+                )
                 return result.value
 
             def RegQueryValueEx(hkey, valuename):
@@ -527,7 +557,7 @@ def find_graphviz():
                 ctypes.windll.advapi32.RegQueryValueExA(
                     hkey, valuename, 0, ctypes.byref(data_type),
                     data, ctypes.byref(data_len)
-                    )
+                )
 
                 return data.value
 
@@ -543,21 +573,22 @@ def find_graphviz():
             potentialKeys = [
                 "SOFTWARE\\ATT\\Graphviz",
                 "SOFTWARE\\AT&T Research Labs\\Graphviz"
-                ]
+            ]
             for potentialKey in potentialKeys:
 
                 try:
                     hkey = RegOpenKeyEx(
                         HKEY_LOCAL_MACHINE,
                         potentialKey, 0, KEY_QUERY_VALUE
-                        )
+                    )
 
                     if hkey is not None:
                         path = RegQueryValueEx(hkey, "InstallPath")
                         RegCloseKey(hkey)
 
-                        # The regitry variable might exist, left by old installations
-                        # but with no value, in those cases we keep searching...
+                        # The regitry variable might exist, left by old
+                        # installations but with no value, in those cases we
+                        # keep searching...
                         if not path:
                             continue
 
@@ -590,7 +621,9 @@ def find_graphviz():
         if 'PROGRAMFILES' in os.environ:
             # Note, we could also use the win32api to get this
             # information, but win32api may not be installed.
-            path = os.path.join(os.environ['PROGRAMFILES'], 'ATT', 'GraphViz', 'bin')
+            path = os.path.join(
+                os.environ['PROGRAMFILES'], 'ATT', 'GraphViz', 'bin'
+            )
         else:
             #Just in case, try the default...
             path = r"C:\Program Files\att\Graphviz\bin"
@@ -606,8 +639,7 @@ def find_graphviz():
             '/usr/bin', '/usr/local/bin',
             '/opt/local/bin',
             '/opt/bin', '/sw/bin', '/usr/share',
-            '/Applications/Graphviz.app/Contents/MacOS/'
-            ):
+            '/Applications/Graphviz.app/Contents/MacOS/'):
 
         progs = __find_executables(path)
         if progs is not None:
@@ -732,11 +764,14 @@ class Common(object):
             self.__setattr__(
                 'set_' + attr,
                 lambda x, a=attr: self.obj_dict['attributes'].__setitem__(a, x)
-                )
+            )
 
             # Generate all the Getter methods.
             #
-            self.__setattr__('get_' + attr, lambda a=attr: self.__get_attribute__(a))
+            self.__setattr__(
+                'get_' + attr,
+                lambda a=attr: self.__get_attribute__(a)
+            )
 
 
 class Error(Exception):
@@ -750,7 +785,9 @@ class Error(Exception):
 
 
 class InvocationException(Exception):
-    """To indicate that a ploblem occurred while running any of the GraphViz executables.
+    """
+    To indicate that a ploblem occurred while running any of the GraphViz
+    executables.
     """
     def __init__(self, value):
         self.value = value
@@ -776,7 +813,8 @@ class Node(Common):
 
         #
         # Nodes will take attributes of all other types because the defaults
-        # for any GraphViz object are dealt with as if they were Node definitions
+        # for any GraphViz object are dealt with as if they were Node
+        # definitions
         #
 
         if obj_dict is not None:
@@ -844,7 +882,9 @@ class Node(Common):
 
         node_attr = list()
 
-        for attr, value in sorted(self.obj_dict['attributes'].items(), key=itemgetter(0)):
+        for attr, value in sorted(
+                self.obj_dict['attributes'].items(),
+                key=itemgetter(0)):
             if value is not None:
                 node_attr.append('%s=%s' % (attr, quote_if_necessary(value)))
             else:
@@ -1026,7 +1066,9 @@ class Edge(Common):
 
         edge_attr = list()
 
-        for attr, value in sorted(self.obj_dict['attributes'].items(), key=itemgetter(0)):
+        for attr, value in sorted(
+                self.obj_dict['attributes'].items(),
+                key=itemgetter(0)):
             if value is not None:
                 edge_attr.append('%s=%s' % (attr, quote_if_necessary(value)))
             else:
@@ -1077,8 +1119,9 @@ class Graph(Common):
     """
 
     def __init__(
-            self, graph_name='G', obj_dict=None, graph_type='digraph', strict=False,
-            suppress_disconnected=False, simplify=False, **attrs):
+            self, graph_name='G', obj_dict=None, graph_type='digraph',
+            strict=False, suppress_disconnected=False, simplify=False,
+            **attrs):
 
         if obj_dict is not None:
             self.obj_dict = obj_dict
@@ -1091,7 +1134,7 @@ class Graph(Common):
                 raise Error((
                     'Invalid type "%s". Accepted graph types are: '
                     'graph, digraph, subgraph' % graph_type
-                    ))
+                ))
 
             self.obj_dict['name'] = quote_if_necessary(graph_name)
             self.obj_dict['type'] = graph_type
@@ -1241,17 +1284,24 @@ class Graph(Common):
         """
 
         if not isinstance(graph_node, Node):
-            raise TypeError('add_node() received a non node class object: ' + str(graph_node))
+            raise TypeError(
+                'add_node() received a non node '
+                'class object: {}'.format(str(graph_node))
+            )
 
         node = self.get_node(graph_node.get_name())
 
         if not node:
-            self.obj_dict['nodes'][graph_node.get_name()] = [graph_node.obj_dict]
+            self.obj_dict['nodes'][graph_node.get_name()] = [
+                graph_node.obj_dict
+            ]
 
             #self.node_dict[graph_node.get_name()] = graph_node.attributes
             graph_node.set_parent_graph(self.get_parent_graph())
         else:
-            self.obj_dict['nodes'][graph_node.get_name()].append(graph_node.obj_dict)
+            self.obj_dict['nodes'][graph_node.get_name()].append(
+                graph_node.obj_dict
+            )
 
         graph_node.set_sequence(self.get_next_sequence_number())
 
@@ -1304,7 +1354,7 @@ class Graph(Common):
                 Node(obj_dict=obj_dict)
                 for obj_dict
                 in self.obj_dict['nodes'][name]
-                ])
+            ])
 
         return match
 
@@ -1327,7 +1377,7 @@ class Graph(Common):
                 Node(obj_dict=obj_d)
                 for obj_d
                 in obj_dict_list
-                ])
+            ])
 
         return node_objs
 
@@ -1339,7 +1389,10 @@ class Graph(Common):
         """
 
         if not isinstance(graph_edge, Edge):
-            raise TypeError('add_edge() received a non edge class object: ' + str(graph_edge))
+            raise TypeError(
+                'add_edge() received a non '
+                'edge class object: {}'.format(str(graph_edge))
+            )
 
         edge_points = (graph_edge.get_source(), graph_edge.get_destination())
 
@@ -1384,7 +1437,8 @@ class Graph(Common):
             dst = dst.get_name()
 
         if (src, dst) in self.obj_dict['edges']:
-            if index is not None and index < len(self.obj_dict['edges'][(src, dst)]):
+            if index is not None and index < len(
+                    self.obj_dict['edges'][(src, dst)]):
                 del self.obj_dict['edges'][(src, dst)][index]
                 return True
             else:
@@ -1415,17 +1469,18 @@ class Graph(Common):
 
         if edge_points in self.obj_dict['edges'] or (
                 self.get_top_graph_type() == 'graph' and
-                edge_points_reverse in self.obj_dict['edges']
-                ):
+                edge_points_reverse in self.obj_dict['edges']):
 
             edges_obj_dict = self.obj_dict['edges'].get(
                 edge_points,
                 self.obj_dict['edges'].get(edge_points_reverse, None))
 
             for edge_obj_dict in edges_obj_dict:
-                match.append(
-                    Edge(edge_points[0], edge_points[1], obj_dict=edge_obj_dict)
-                    )
+                match.append(Edge(
+                    edge_points[0],
+                    edge_points[1],
+                    obj_dict=edge_obj_dict
+                ))
 
         return match
 
@@ -1446,7 +1501,7 @@ class Graph(Common):
                 Edge(obj_dict=obj_d)
                 for obj_d
                 in obj_dict_list
-                ])
+            ])
 
         return edge_objs
 
@@ -1457,8 +1512,12 @@ class Graph(Common):
         None.
         """
 
-        if not isinstance(sgraph, Subgraph) and not isinstance(sgraph, Cluster):
-            raise TypeError('add_subgraph() received a non subgraph class object:' + str(sgraph))
+        if not isinstance(sgraph, Subgraph) and \
+                not isinstance(sgraph, Cluster):
+            raise TypeError(
+                'add_subgraph() received a non '
+                'subgraph class object:'.format(str(sgraph))
+            )
 
         if sgraph.get_name() in self.obj_dict['subgraphs']:
 
@@ -1489,7 +1548,6 @@ class Graph(Common):
             sgraphs_obj_dict = self.obj_dict['subgraphs'].get(name)
 
             for obj_dict_list in sgraphs_obj_dict:
-                #match.extend(Subgraph(obj_dict = obj_d) for obj_d in obj_dict_list)
                 match.append(Subgraph(obj_dict=obj_dict_list))
 
         return match
@@ -1511,7 +1569,7 @@ class Graph(Common):
                 Subgraph(obj_dict=obj_d)
                 for obj_d
                 in obj_dict_list
-                ])
+            ])
 
         return sgraph_objs
 
@@ -1544,14 +1602,22 @@ class Graph(Common):
                 graph.append('strict ')
 
         if self.obj_dict['name'] == '':
-            if 'show_keyword' in self.obj_dict and self.obj_dict['show_keyword']:
+            if 'show_keyword' in self.obj_dict and \
+                    self.obj_dict['show_keyword']:
                 graph.append('subgraph {\n')
             else:
                 graph.append('{\n')
         else:
-            graph.append('%s %s {\n' % (self.obj_dict['type'], self.obj_dict['name']))
+            graph.append(
+                '{} {} {{\n'.format(
+                    self.obj_dict['type'],
+                    self.obj_dict['name']
+                )
+            )
 
-        for attr, value in sorted(self.obj_dict['attributes'].items(), key=itemgetter(0)):
+        for attr, value in sorted(
+                self.obj_dict['attributes'].items(),
+                key=itemgetter(0)):
             if value is not None:
                 graph.append('%s=%s' % (attr, quote_if_necessary(value)))
             else:
@@ -1566,7 +1632,9 @@ class Graph(Common):
             edge_obj_dicts.extend(e)
 
         if edge_obj_dicts:
-            edge_src_set, edge_dst_set = list(zip(*[obj['points'] for obj in edge_obj_dicts]))
+            edge_src_set, edge_dst_set = list(
+                zip(*[obj['points'] for obj in edge_obj_dicts])
+            )
             edge_src_set, edge_dst_set = set(edge_src_set), set(edge_dst_set)
         else:
             edge_src_set, edge_dst_set = set(), set()
@@ -1583,7 +1651,7 @@ class Graph(Common):
             (obj['sequence'], obj)
             for obj
             in (edge_obj_dicts + node_obj_dicts + sgraph_obj_dicts)
-            ])
+        ])
 
         for idx, obj in obj_list:
             if obj['type'] == 'node':
@@ -1620,7 +1688,9 @@ class Subgraph(Graph):
     This class implements the methods to work on a representation
     of a subgraph in Graphviz's dot language.
 
-    subgraph(graph_name='subG', suppress_disconnected=False, attribute=value, ...)
+    subgraph(
+        graph_name='subG', suppress_disconnected=False, attribute=value, ...
+    )
 
     graph_name:
         the subgraph's name
@@ -1651,7 +1721,8 @@ class Subgraph(Graph):
 
         Graph.__init__(
             self, graph_name=graph_name, obj_dict=obj_dict,
-            suppress_disconnected=suppress_disconnected, simplify=simplify, **attrs)
+            suppress_disconnected=suppress_disconnected,
+            simplify=simplify, **attrs)
 
         if obj_dict is None:
             self.obj_dict['type'] = 'subgraph'
@@ -1664,7 +1735,9 @@ class Cluster(Graph):
     This class implements the methods to work on a representation
     of a cluster in Graphviz's dot language.
 
-    cluster(graph_name='subG', suppress_disconnected=False, attribute=value, ...)
+    cluster(
+        graph_name='subG', suppress_disconnected=False, attribute=value, ...
+    )
 
     graph_name:
         the cluster's name (the string 'cluster' will be always prepended)
@@ -1687,13 +1760,15 @@ class Cluster(Graph):
     """
 
     def __init__(
-            self, graph_name='subG', obj_dict=None, suppress_disconnected=False,
+            self, graph_name='subG', obj_dict=None,
+            suppress_disconnected=False,
             simplify=False, **attrs):
 
         Graph.__init__(
             self, graph_name=graph_name, obj_dict=obj_dict,
-            suppress_disconnected=suppress_disconnected, simplify=simplify, **attrs
-            )
+            suppress_disconnected=suppress_disconnected, simplify=simplify,
+            **attrs
+        )
 
         if obj_dict is None:
             self.obj_dict['type'] = 'subgraph'
@@ -1721,7 +1796,7 @@ class Dot(Graph):
             'jpe', 'jpeg', 'jpg', 'mif', 'mp', 'pcl', 'pdf', 'pic', 'plain',
             'plain-ext', 'png', 'ps', 'ps2', 'svg', 'svgz', 'vml', 'vmlz',
             'vrml', 'vtx', 'wbmp', 'xdot', 'xlib'
-            ]
+        ]
         self.prog = 'dot'
 
         # Automatically creates all the methods enabling the creation
@@ -1730,24 +1805,26 @@ class Dot(Graph):
             self.__setattr__(
                 'create_' + frmt,
                 lambda f=frmt, prog=self.prog: self.create(format=f, prog=prog)
-                )
+            )
             f = self.__dict__['create_' + frmt]
             f.__doc__ = (
                 '''Refer to the docstring accompanying the'''
                 ''''create' method for more information.'''
-                )
+            )
 
         for frmt in self.formats + ['raw']:
             self.__setattr__(
                 'write_' + frmt,
-                lambda path, f=frmt, prog=self.prog: self.write(path, format=f, prog=prog)
-                )
+                lambda path,
+                f=frmt,
+                prog=self.prog: self.write(path, format=f, prog=prog)
+            )
 
             f = self.__dict__['write_' + frmt]
             f.__doc__ = (
                 '''Refer to the docstring accompanying the'''
                 ''''write' method for more information.'''
-                )
+            )
 
     def __getstate__(self):
         return copy.copy(self.obj_dict)
@@ -1759,13 +1836,13 @@ class Dot(Graph):
         """Add the paths of the required image files.
 
         If the graph needs graphic objects to be used as shapes or otherwise
-        those need to be in the same folder as the graph is going to be rendered
-        from. Alternatively the absolute path to the files can be specified when
-        including the graphics in the graph.
+        those need to be in the same folder as the graph is going to be
+        rendered from. Alternatively the absolute path to the files can be
+        specified when including the graphics in the graph.
 
-        The files in the location pointed to by the path(s) specified as arguments
-        to this method will be copied to the same temporary location where the
-        graph is going to be rendered.
+        The files in the location pointed to by the path(s) specified as
+        arguments to this method will be copied to the same temporary location
+        where the graph is going to be rendered.
         """
 
         if isinstance(file_paths, basestring):
@@ -1783,14 +1860,17 @@ class Dot(Graph):
         self.prog = prog
 
     def set_graphviz_executables(self, paths):
-        """This method allows to manually specify the location of the GraphViz executables.
+        """
+        This method allows to manually specify the location of the GraphViz
+        executables.
 
-        The argument to this method should be a dictionary where the keys are as follows:
+        The argument to this method should be a dictionary where the keys are
+        as follows:
 
             {'dot': '', 'twopi': '', 'neato': '', 'circo': '', 'fdp': ''}
 
-        and the values are the paths to the corresponding executable, including the name
-        of the executable itself.
+        and the values are the paths to the corresponding executable,
+        including the name of the executable itself.
         """
 
         self.progs = paths
@@ -1893,9 +1973,12 @@ class Dot(Graph):
             raise InvocationException(
                 'GraphViz\'s executable "%s" not found' % prog)
 
-        if not os.path.exists(self.progs[prog]) or not os.path.isfile(self.progs[prog]):
+        if not os.path.exists(self.progs[prog]) or \
+                not os.path.isfile(self.progs[prog]):
             raise InvocationException(
-                'GraphViz\'s executable "%s" is not a file or doesn\'t exist' % self.progs[prog])
+                'GraphViz\'s executable "{}" is not'
+                ' a file or doesn\'t exist'.format(self.progs[prog])
+            )
 
         tmp_fd, tmp_name = tempfile.mkstemp()
         os.close(tmp_fd)
@@ -1910,7 +1993,8 @@ class Dot(Graph):
             f_data = f.read()
             f.close()
 
-            # And copy it under a file with the same name in the temporary directory
+            # And copy it under a file with the same name in the temporary
+            # directory
             f = open(os.path.join(tmp_dir, os.path.basename(img)), 'wb')
             f.write(f_data)
             f.close()

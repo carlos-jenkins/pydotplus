@@ -1,6 +1,7 @@
 include README.rst
 include LICENSE
 include requirements.txt
+include requirements.dev.txt
 graft doc
 graft examples
 graft test

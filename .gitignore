@@ -1,6 +1,16 @@
-*.pyc
+*.py[cod]
 __pycache__
-*~
-.DS_Store
+
+# Packages
+*.egg
+*.egg-info
+dist/*
 build/*
 
+# Tox
+.tox/*
+.coverage
+
+# Misc
+*~
+.DS_Store

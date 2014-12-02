@@ -1,5 +1,5 @@
 =======================================================
-PyDotplus - Python interface to Graphviz's Dot language
+PyDotPlus - Python interface to Graphviz's Dot language
 =======================================================
 
 .. image:: https://pypip.in/py_versions/pydotplus/badge.png

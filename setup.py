@@ -50,7 +50,7 @@ setup(
     # Metadata
     author='PyDotPlus Developers',
     author_email='carlos@jenkins.co.cr',
-    description='Python interface to Graphviz\'s Dot Language',
+    description='Python interface to Graphviz\'s Dot language',
     long_description=open('README.rst', 'r').read(),
     url='http://pydotplus.readthedocs.org/',
 

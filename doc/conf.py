@@ -269,5 +269,19 @@ texinfo_documents = [
 #texinfo_no_detailmenu = False
 
 
-# Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'http://docs.python.org/': None}
+# -- Options for intersphinx extension ----------------------------------------
+
+intersphinx_mapping = {
+    'python': ('http://docs.python.org/3/', None)
+}
+
+
+# -- Custom theme options -----------------------------------------------------
+
+# Override variables in on readthedocs.org
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+
+if not on_rtd:  # only import and set the theme if we're building docs locally
+    import sphinx_rtd_theme
+    html_theme = 'sphinx_rtd_theme'
+    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]

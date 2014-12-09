@@ -47,7 +47,7 @@ def find_requirements(requirements):
         reqs = []
         for line in fd:
             line = line.strip()
-            if line and not line[:1] in string.ascii_letters:
+            if line and line[:1] in string.ascii_letters:
                 reqs.append(line)
     return reqs
 

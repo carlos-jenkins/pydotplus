@@ -30,6 +30,6 @@ PyDotPlus version module.
 from __future__ import unicode_literals
 from __future__ import print_function
 
-__version__ = '2.0.1-dev'
+__version__ = '2.0.2'
 
 __all__ = ['__version__']

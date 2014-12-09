@@ -41,11 +41,25 @@ def find_version(filename):
     raise RuntimeError('Unable to find version string.')
 
 
+def find_requirements(requirements):
+    import string
+    with open(requirements, 'r') as fd:
+        reqs = []
+        for line in fd:
+            line = line.strip()
+            if line and not line[:1] in string.ascii_letters:
+                reqs.append(line)
+    return reqs
+
+
 setup(
     name='pydotplus',
     version=find_version('lib/pydotplus/version.py'),
     package_dir={'': 'lib'},
     packages=find_packages('lib'),
+
+    # Dependencies
+    install_requires=find_requirements('requirements.txt'),
 
     # Metadata
     author='PyDotPlus Developers',
